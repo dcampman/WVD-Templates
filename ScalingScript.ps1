@@ -1,27 +1,38 @@
-﻿#region variables
-# Host start threshold meaning the number of available sessions to trigger a host start or shutdown
-	$serverStartThreshold = 1
+﻿param(
+	[Parameter(mandatory = $false)]
+	[object]$WebHookData
+)
 
-# Peak time and Threshold
-# Set the usePeak (yes or no)
-# Modifiy the peak threshold, start, stop and peakDays if desired
-# Set time to utcoffset to your timezone
-	$usePeak = "yes"
-	$peakServerStartThreshold = 1
-	$startPeakTime = '08:00:00'
-	$endPeakTime = '18:00:00'
-	$utcoffset = '-4'
-	$peakDay = 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
-# Settings for your environment note the variables should be
-# Azure automation encrypted variables for TenantID and Subscription ID
+# If runbook was called from Webhook, WebhookData will not be null.
+if ($WebHookData)
+{
+	# Collect properties of WebhookData
+	$Input = (ConvertFrom-Json -InputObject $WebHookData.RequestBody)
+}
+else
+{
+	Write-Error -Message 'Runbook was not started from Webhook' -ErrorAction stop
+}
+
+#region variables
+# Host start threshold meaning the number of available sessions to trigger a host start or shutdown
+	$serverStartThreshold = $Input.UserSessionBuffer
+#Get Peak time and Threshold from LogicApp Webhook Data
+	$usePeak = $Input.UsePeak
+	$peakServerStartThreshold = $Input.PeakUserSessionBuffer
+	$startPeakTime = $Input.PeakStart
+	$endPeakTime = $Input.PeakEnd
+	$utcoffset = $Input.utcOffset
+	$peakDay = $Input.PeakDays
+#Azure automation encrypted variables for TenantID and Subscription ID
 	$aadTenantId = Get-AutomationVariable -Name 'aadTenantId'
-	$azureSubId = Get-AutomationVariable -Name 'azureSubId'
-# Host Resource Group
-	$sessionHostRg = ''
-# Tenant Name
-	$tenantName = ''
-# Host Pool Name
-	$hostPoolName = ''
+	$azureSubId = Get-AutomationVariable -Name 'AzureSubId'
+#Host Resource Group
+	$sessionHostRg = Get-AutomationVariable -Name 'SessionHostRG'
+#Tenant Name
+	$tenantName = Get-AutomationVariable -Name 'TenantName'
+#Host Pool Name
+	$hostPoolName = $Input.HostpoolName
 #endregion
 
 #region Functions
