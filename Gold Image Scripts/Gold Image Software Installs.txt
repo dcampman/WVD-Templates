@@ -1,0 +1,120 @@
+#Install Office with ODT
+#https://www.microsoft.com/en-us/download/confirmation.aspx?id=49117
+#Download and install. This will unpack the setup.exe used for deployment.
+
+#Create a confiuration.xml and save it to the same directory that the setup.exe (ODT) is located.
+#This file can be reconfigured using this tool: https://config.office.com/deploymentsettings
+
+#sample config.xml
+<Configuration ID="04365b45-3b26-4466-98a5-8be58fdea48c">
+  <Add OfficeClientEdition="64" Channel="Broad">
+    <Product ID="O365ProPlusRetail">
+      <Language ID="en-us" />
+      <ExcludeApp ID="Groove" />
+      <ExcludeApp ID="Lync" />
+      <ExcludeApp ID="OneDrive" />
+      <ExcludeApp ID="Teams" />
+    </Product>
+  </Add>
+  <Property Name="SharedComputerLicensing" Value="1" />
+  <Property Name="PinIconsToTaskbar" Value="TRUE" />
+  <Property Name="SCLCacheOverride" Value="0" />
+  <Property Name="AUTOACTIVATE" Value="0" />
+  <Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
+  <Property Name="DeviceBasedLicensing" Value="0" />
+  <Updates Enabled="TRUE" />
+  <RemoveMSI />
+  <Display Level="None" AcceptEULA="FALSE" />
+</Configuration>
+#end file
+
+#run in elevated command prompt:
+setup.exe /configure config.xml (Config.xml needs to live in the same place as setup.exe)
+
+
+
+
+#Run these commands in an elevated cmd to complete the Setup of Office
+
+#Setup Shared Licensing for Users
+REG add HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration /v SCLCacheOverride /t REG_DWORD /d 1 /f
+REG add HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration /v SCLCacheOverrideDirectory /t REG_SZ /d "%appdata%\Microsoft\Office" /f
+REG add HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration /v SharedComputerLicensing /t REG_DWORD /d 1 /f
+
+#Mount the default user registry hive
+REG load HKU\TempDefault C:\Users\Default\NTUSER.DAT
+
+#Disables option for Insider track
+REG add HKU\TempDefault\SOFTWARE\Policies\Microsoft\office\16.0\common /v InsiderSlabBehavior /t REG_DWORD /d 2 /f
+
+#Set Outlook's Cached Exchange Mode behavior
+REG add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v enable /t REG_DWORD /d 1 /f
+
+#Set caching to only 1 month for mail
+REG add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v syncwindowsetting /t REG_DWORD /d 1 /f
+
+#Set
+REG add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v CalendarSyncWindowSetting /t REG_DWORD /d 1 /f
+
+#Set
+REG add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v CalendarSyncWindowSettingMonths  /t REG_DWORD /d 1 /f
+
+#Unmount the default user registry hive
+REG unload HKU\TempDefault
+
+#Set the Office Update UI behavior.
+REG add HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate /v hideupdatenotifications /t REG_DWORD /d 1 /f
+REG add HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate /v hideenabledisableupdates /t REG_DWORD /d 1 /f
+
+
+
+
+
+#OneDrive Setup:
+
+#Download new onedrive client and save in c:\temp
+#https://aka.ms/OneDriveWVD-Installer
+
+#Run these commands in an elevated cmd to complete OneDrive Install
+"c:\temp\OneDriveSetup.exe" /uninstall
+REG ADD "HKLM\Software\Microsoft\OneDrive" /v "AllUsersInstall" /t REG_DWORD /d 1 /reg:64
+"c:\temp\OneDriveSetup.exe" /allusers
+
+REG ADD "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /t REG_SZ /d "C:\Program Files (x86)\Microsoft OneDrive\OneDrive.exe /background" /f
+REG ADD "HKLM\SOFTWARE\Policies\Microsoft\OneDrive" /v "SilentAccountConfig" /t REG_DWORD /d 1 /f
+REG ADD "HKLM\SOFTWARE\Policies\Microsoft\OneDrive" /v "KFMSilentOptIn" /t REG_SZ /d "<your-AzureAdTenantId>" /f
+
+
+
+
+
+#Teams Setup:
+#Teams is not officially supported on WVD, however you can stil run teams for Chat and file sharing.
+#Teams on VDI Info: https://docs.microsoft.com/en-us/microsoftteams/teams-for-vdi#deploy-the-teams-desktop-app-to-the-vm
+#Download Teams MIS: https://statics.teams.cdn.office.net/production-windows-x64/1.3.00.4461/Teams_windows_x64.msi
+
+#https://techcommunity.microsoft.com/t5/windows-virtual-desktop/how-to-install-teams-in-wvd/m-p/1260596
+REG ADD "HKLM\SOFTWARE\Microsoft\Teams" /v IsWVDEnvironment /t REG_DWORD /d 1 /f
+
+msiexec /i <path_to_msi> /l*v <install_logfile_name> ALLUSER=1 ALLUSERS=1
+
+
+
+
+
+
+#FSLogix Setup:
+#Download FSLogix: https://aka.ms/fslogix_download
+#Install FSLogix application with default settings
+
+REG add HKLM\SOFTWARE\FSLogix\Profiles
+REG add HKLM\SOFTWARE\FSLogix\Profiles /v Enabled /t REG_DWORD /d 1 /f
+REG add HKLM\SOFTWARE\FSLogix\Profiles /v VHDLocations /t REG_SZ /d "\\<fileservername>\<volume>\<share>" /f
+
+
+
+
+
+
+#SysPrep the Machine:
+%WINDIR%\system32\sysprep\sysprep.exe /generalize /shutdown /oobe
