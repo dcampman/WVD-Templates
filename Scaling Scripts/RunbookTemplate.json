@@ -19,7 +19,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located."
       },
-      "defaultValue": "https://github.com/dcampman/WVD-Templates.git"
+      "defaultValue": "https://github.com/dcampman/WVD-Templates/tree/master/Scaling%20Scripts"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",

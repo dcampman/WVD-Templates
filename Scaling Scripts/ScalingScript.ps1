@@ -25,7 +25,7 @@ else
 	$utcoffset = $Input.utcOffset
 	$peakDay = $Input.PeakDays
 #Azure automation encrypted variables for TenantID and Subscription ID
-	$aadTenantId = Get-AutomationVariable -Name 'aadTenantId'
+	$aadTenantId = Get-AutomationVariable -Name 'AADTenantId'
 	$azureSubId = Get-AutomationVariable -Name 'AzureSubId'
 #Host Resource Group
 	$sessionHostRg = Get-AutomationVariable -Name 'SessionHostRG'
