@@ -15,7 +15,7 @@ else
 }
 
 #region variables
-# Host start threshold meaning the number of available sessions to trigger a host start or shutdown
+#Host start threshold meaning the number of available sessions to trigger a host start or shutdown
 	$serverStartThreshold = $Input.UserSessionBuffer
 #Get Peak time and Threshold from LogicApp Webhook Data
 	$usePeak = $Input.UsePeak

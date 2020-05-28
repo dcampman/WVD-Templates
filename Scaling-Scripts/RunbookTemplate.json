@@ -19,7 +19,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located."
       },
-      "defaultValue": "https://github.com/dcampman/WVD-Templates/tree/master/Scaling%20Scripts/"
+      "defaultValue": "https://github.com/dcampman/WVD-Templates/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -30,7 +30,7 @@
     }
   },
   "variables": {
-    "scriptUri": "https://raw.githubusercontent.com/dcampman/WVD-Templates/master/Scaling%20Scripts/ScalingScript.ps1",
+    "scriptUri": "[concat(parameters('_artifactsLocaiton'),'ScalingScript.ps1')]",
     "sku": "Free"
   },
   "resources": [
