@@ -30,7 +30,7 @@
     }
   },
   "variables": {
-    "scriptUri": "[concat(parameters('_artifactsLocaiton'),'/Scaling-Scripts/ScalingScript.ps1')]",
+    "scriptUri": "[concat(parameters('_artifactsLocation'),'/Scaling-Scripts/ScalingScript.ps1')]",
     "sku": "Free"
   },
   "resources": [
