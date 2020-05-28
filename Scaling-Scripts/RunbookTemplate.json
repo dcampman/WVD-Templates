@@ -19,7 +19,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located."
       },
-      "defaultValue": "https://github.com/dcampman/WVD-Templates/"
+      "defaultValue": "https://github.com/dcampman/WVD-Templates/blob/master/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
